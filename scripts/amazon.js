@@ -1,3 +1,6 @@
+import { cart, addToCart } from "../data/cart.js";
+import { products } from "../data/products.js";
+
 let productsHTML = "";
 
 products.forEach((product) => {
@@ -58,53 +61,34 @@ products.forEach((product) => {
 });
 document.querySelector(".js-products-grid").innerHTML = productsHTML;
 
+function updateCartQuantity() {
+  let cartQuantity = 0;
+
+  cart.forEach((cartItem) => {
+    cartQuantity += cartItem.quantity;
+  });
+
+  document.querySelector(".js-cart-quantity").innerHTML = cartQuantity;
+}
+let timeoutId;
+
+function showAddedMessage(productId) {
+  const addedMessage = document.querySelector(`.js-added-to-cart-${productId}`);
+  clearTimeout(timeoutId);
+
+  addedMessage.classList.add("added-message");
+
+  timeoutId = setTimeout(() => {
+    addedMessage.classList.remove("added-message");
+  }, 2000);
+}
+
 document.querySelectorAll(".js-add-to-cart").forEach((button) => {
   button.addEventListener("click", () => {
     const { productId } = button.dataset;
+    addToCart(productId);
+    updateCartQuantity();
 
-    const selector = document.querySelector(
-      `.js-quantity-selector-${productId}`
-    );
-    console.log(selector);
-    const quantity = Number(selector.value);
-
-    let matchingItem;
-
-    cart.forEach((cartItem) => {
-      if (productId === cartItem.productId) {
-        matchingItem = cartItem;
-      }
-    });
-
-    if (matchingItem) {
-      matchingItem.quantity += quantity;
-    } else {
-      cart.push({
-        productId,
-        quantity,
-      });
-    }
-
-    let cartQuantity = 0;
-
-    cart.forEach((cartItem) => {
-      cartQuantity += cartItem.quantity;
-    });
-
-    document.querySelector(".js-cart-quantity").innerHTML = cartQuantity;
-
-    const addedMessage = document.querySelector(
-      `.js-added-to-cart-${productId}`
-    );
-
-    let timeoutId;
-
-    clearTimeout(timeoutId);
-
-    addedMessage.classList.add("added-message");
-
-    timeoutId = setTimeout(() => {
-      addedMessage.classList.remove("added-message");
-    }, 2000);
+    showAddedMessage(productId);
   });
 });
